@@ -127,6 +127,8 @@ def takeoff(vehicle, target_alt):
 #         time.sleep(0.1)
 
 #     print("Spin complete.")
+
+
 def spin_yaw(vehicle, angle, speed, report=False, timeout=15):
     print(f"Spinning {angle} degrees at {speed} deg/s...")
     msg = vehicle.message_factory.command_long_encode(
