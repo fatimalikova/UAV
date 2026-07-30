@@ -5,9 +5,7 @@ from pymavlink import mavutil  # AZ: DroneKit-in bacarmadığı əməliyyatlar �
 
 def wait_for(condition, timeout=10, interval=0.2, error=True):
     # AZ: Ümumi köməkçi funksiya — "bu şərt doğru olana qədər gözlə" məntiqini yerinə yetirir
-    """
-    (İngiliscə izahat — funksiyanın nə etdiyini təsvir edir, yuxarıda söhbətdə artıq izah olunub)
-    """
+    
     start = time.monotonic()  # AZ: hazırkı vaxtı qeyd edir, "başlanğıc nöqtəsi" kimi
     while not condition():  # AZ: "şərt" (condition) doğru olmadığı müddətcə dövr davam edir
         if timeout is not None and time.monotonic() - start >= timeout:  # AZ: keçən vaxt "timeout"u ötübsə
@@ -18,9 +16,7 @@ def wait_for(condition, timeout=10, interval=0.2, error=True):
 
 def connect_drone(connect_str):
     # AZ: Drona (və ya simulyatora) qoşulan funksiya
-    """
-    (İngiliscə izahat)
-    """
+   
     print(f"Connecting to {connect_str}.")  # AZ: ekrana "filan ünvana qoşulur" yazısı çıxarır
     vehicle = dk.connect(connect_str, wait_ready=True)  # AZ: əsl qoşulma — "vehicle" adlı obyekt yaranır, dronun "canlı təmsilçisi"
     atexit.register(vehicle.close)  # AZ: proqram bitəndə (hətta xəta ilə dayansa belə) avtomatik "vehicle.close()" çağırılsın deyə qeyd edir
@@ -28,9 +24,7 @@ def connect_drone(connect_str):
 
 def get_telemetry(vehicle):
     # AZ: Dronun hazırkı vəziyyəti haqqında məlumat toplayan funksiya
-    """
-    (İngiliscə izahat — indi sürət və bucaq da əlavə olunub, ML dataset üçün lazım olacaq)
-    """
+    
     bat = vehicle.battery  # AZ: batareya məlumatını (səviyyə, gərginlik) alır
     status = vehicle.system_status  # AZ: sistemin ümumi statusunu (məsələn "STANDBY", "ACTIVE") alır
     vel = vehicle.velocity  # AZ: sürəti [vx, vy, vz] siyahısı kimi alır (Şimal-Şərq-Aşağı istiqamətlərində, m/s)
@@ -55,9 +49,7 @@ def get_telemetry(vehicle):
 
 def set_mode(vehicle, mode_name) -> None:
     # AZ: Uçuş rejimini dəyişən funksiya (məsələn "GUIDED", "LAND")
-    """
-    (İngiliscə izahat)
-    """
+  
     print(f"Setting mode to {mode_name}...")  # AZ: ekrana "rejim filana dəyişdirilir" yazısı çıxarır
     vehicle.mode = dk.VehicleMode(mode_name)  # AZ: əsl dəyişiklik — rejimi tələb olunan adla qurur
     wait_for(lambda: vehicle.mode.name == mode_name)  # AZ: rejim həqiqətən dəyişənə qədər gözləyir
@@ -68,9 +60,7 @@ def set_mode(vehicle, mode_name) -> None:
 
 def takeoff(vehicle, target_alt):
     # AZ: Dronu verilmiş hündürlüyə qaldıran funksiya
-    """
-    (İngiliscə izahat)
-    """
+    
     print(f"Taking off to {target_alt}m...")  # AZ: "filan metrə qalxılır" yazısı
     vehicle.simple_takeoff(target_alt)  # AZ: DroneKit-in hazır qalxma funksiyası, dərhal qalxmağa başlayır
     wait_for(lambda: vehicle.location.global_relative_frame.alt >= target_alt * 0.95, timeout=20)  # AZ: hündürlüyün 95%-nə çatana qədər gözləyir (20 saniyə limitlə)
@@ -79,9 +69,7 @@ def takeoff(vehicle, target_alt):
 
 def goto_position(vehicle, lat, lon, alt, groundspeed=None, timeout=60):
     # AZ: Dronu verilmiş GPS koordinatına uçuran YENİ funksiya
-    """
-    (İngiliscə izahat — GUIDED rejimdə işləməlidir, simple_goto() dərhal qayıdır, çatmasını gözləmir)
-    """
+   
     target = LocationGlobalRelative(lat, lon, alt)  # AZ: "hara getmək istədiyimizi" bir obyekt kimi paketləyir
     print(f"Going to {lat}, {lon} at {alt}m...")  # AZ: "filan koordinata gedilir" yazısı
     if groundspeed:  # AZ: əgər sürət təyin olunubsa
@@ -91,9 +79,7 @@ def goto_position(vehicle, lat, lon, alt, groundspeed=None, timeout=60):
 
     def distance_to_target():
         # AZ: daxili köməkçi funksiya — "hədəfə neçə metr qalıb?" sualına cavab verir
-        """
-        (İngiliscə izahat — dərəcəni metrə çevirmə düsturu)
-        """
+       
         current = vehicle.location.global_relative_frame  # AZ: dronun hazırkı GPS mövqeyini alır
         dlat = (target.lat - current.lat) * 111320  # AZ: enlik fərqini metrə çevirir (1 dərəcə ≈ 111320 metr)
         dlon = (target.lon - current.lon) * 111320 * math.cos(math.radians(current.lat))  # AZ: uzunluq fərqini metrə çevirir, enliyə görə düzəlişlə
@@ -108,9 +94,7 @@ def goto_position(vehicle, lat, lon, alt, groundspeed=None, timeout=60):
 
 def release_payload(vehicle, servo_channel, release_pwm=1900, hold_pwm=1100, hold_time=1.0):
     # AZ: Yükü servo vasitəsilə buraxan YENİ funksiya
-    """
-    (İngiliscə izahat — MAV_CMD_DO_SET_SERVO əmri ilə, spin_yaw-dakı eyni texnika)
-    """
+   
     print(f"Releasing payload on channel {servo_channel}...")  # AZ: "filan kanalda yük buraxılır" yazısı
 
     def set_servo(pwm):
@@ -132,9 +116,7 @@ def release_payload(vehicle, servo_channel, release_pwm=1900, hold_pwm=1100, hol
 
 def spin_yaw(vehicle, angle, speed, report=False, timeout=15):
     # AZ: Dronu öz oxu ətrafında fırladan funksiya (əvvəldən var idi, indi timeout əlavə olunub)
-    """
-    (İngiliscə izahat)
-    """
+   
     print(f"Spinning {angle} degrees at {speed} deg/s...")  # AZ: "filan dərəcə fırlanılır" yazısı
     msg = vehicle.message_factory.command_long_encode(  # AZ: xam MAVLink əmri qurulur
             0, 0, # These are target system and component. First 0 is ignored, second 0 indicates autopilot.  # AZ: hədəf sistem/komponent
@@ -174,9 +156,7 @@ def spin_yaw(vehicle, angle, speed, report=False, timeout=15):
 
 def land(vehicle):
     # AZ: Dronu təhlükəsiz endirən funksiya
-    """
-    (İngiliscə izahat)
-    """
+   
     print("Landing...")  # AZ: "enilir" yazısı
     vehicle.mode = dk.VehicleMode("LAND")  # AZ: rejimi "LAND"-ə dəyişir, bu, avtomatik enməni başladır
     wait_for(lambda: not vehicle.armed, timeout=60)  # AZ: dron disarm olana (motor dayanana) qədər gözləyir (60 saniyə limitlə)
